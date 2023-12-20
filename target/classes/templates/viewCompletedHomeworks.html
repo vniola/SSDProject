@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Visualizzazione Homework</title>
+    <link rel="stylesheet" href="stylesViewHomework.css">
+</head>
+<body>
+    <header>
+        <h1>Visualizzazione Homework Completati</h1>
+    </header>
+
+    <table id="homeworkTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Soluzione</th>
+            </tr>
+        </thead>
+        <tbody id="completedHomeworksList"></tbody>
+    </table>
+
+    <script>
+        fetch('/api/viewCompletedHomeworks')
+        .then(response => response.json())
+        .then(data => {
+            const completedHomeworksList = document.getElementById('completedHomeworksList');
+            
+            // Rimuovi i precedenti figli di homeworkList, se presenti
+            while (completedHomeworksList.firstChild) {
+                completedHomeworksList.removeChild(completedHomeworksList.firstChild);
+            }
+
+            data.forEach(completedHomeworks => {
+                const row = completedHomeworksList.insertRow();
+                row.innerHTML = `<td>${completedHomeworks.userId}</td>
+                                 <td>${completedHomeworks.homeworkId}</td>
+                                 <td>${completedHomeworks.content}</td>`;
+            });
+        })
+        .catch(error => {
+            console.error('Errore durante il recupero degli homework:', error);
+        });
+    </script>
+
+</body>
+</html>

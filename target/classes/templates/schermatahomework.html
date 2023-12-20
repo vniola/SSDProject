@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestione File</title>
+    <link href="/stylehomework.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Stili per i pulsanti */
+        #viewHomeworkBtn,
+        #viewCompletedHomeworksBtn {
+          padding: 10px 20px;
+          background-color: #007bff;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          margin-top: 10px;
+        }
+
+        #viewHomeworkBtn:hover,
+        #viewCompletedHomeworksBtn:hover {
+          background-color: #0056b3;
+        }
+
+        /* Stili per il layout */
+        body {
+          background-image: url('./Icone/dashboard.jpg'); /* Inserisci il percorso del tuo file immagine */
+          background-size: cover; /* Adatta l'immagine allo schermo */
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding-top: 20px;
+          margin: 0; /* Rimuovi il margine predefinito della pagina */
+        }
+        
+        #buttonsContainer {
+          display: flex;
+          justify-content: center;
+          gap: 20px;
+          margin-bottom: 20px;
+          width: 100%; /* I pulsanti occupano tutta la larghezza disponibile */
+          box-sizing: border-box; /* Include il padding e il bordo nella larghezza totale */
+          padding: 0 20px; /* Aggiunge spazio ai lati dei pulsanti */
+          max-width: 800px; /* Limita la larghezza massima dei pulsanti */
+        }
+
+        #contentContainer {
+          width: 100%; /* I form occupano tutta la larghezza disponibile */
+          max-width: 800px; /* Limita la larghezza massima dei form */
+          padding: 0 20px; /* Aggiunge spazio ai lati dei form */
+          box-sizing: border-box; /* Include il padding e il bordo nella larghezza totale */
+        }
+
+        /* Stili per mantenere le dimensioni degli elementi interni */
+        #homeworkForm,
+        #deleteHomeworkForm {
+          width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="contentContainer">
+        <h1>Area Gestione Homeworks</h1>
+        <div id="buttonsContainer">
+            <button type="button" onclick="window.location.href='/viewHomeworkPage'" id="viewHomeworkBtn">Visualizza Homework</button>
+            <button type="button" onclick="window.location.href='/viewCompletedHomeworks'" id="viewCompletedHomeworksBtn">Visualizza Homework completati</button>
+        </div>
+        <form id="homeworkForm" enctype="multipart/form-data">
+            <h2>Inserisci Homework</h2>
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required>
+            <br>
+            <label for="deadline">Deadline:</label>
+            <input type="text" id="deadline" name="deadline" placeholder="Formato: dd/mm/yy" required>
+            <br>
+            <label for="id">ID:</label>
+            <input type="text" id="id" name="id" value="" readonly>
+            <br>
+            <label for="traccia">Traccia:</label>
+            <textarea id="traccia" name="traccia" style="height: 50vh; width: 100%; resize: none;" required></textarea>
+            <br>
+            <button type="submit" id="submitBtn">Inserisci Homework</button>
+        </form>
+
+        <form id="deleteHomeworkForm" onsubmit="deleteHomework(); return false;">
+            <h2>Cancellazione Homework</h2>
+            <label for="deleteDropdown">Seleziona l'Homework da cancellare:</label>
+            <select id="deleteDropdown" name="idToDelete" required></select>
+            <button type="submit">Cancella Homework</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('homeworkForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Evita il comportamento di default del submit del form
+
+            var randomID = generateRandomID();
+            document.getElementById('id').value = randomID;
+
+            var formData = new FormData();
+            formData.append('nome', document.getElementById('nome').value);
+            formData.append('deadline', document.getElementById('deadline').value);
+            formData.append('id', randomID);
+            formData.append('traccia', document.getElementById('traccia').value);
+
+            fetch('/api/addHomework', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Errore durante l\'inserimento dell\'homework');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Homework inserito con successo', data);
+                alert('Homework inserito con successo!'); // Notifica di successo
+                // Esegui altre azioni in base alla risposta del server
+            })
+
+            .catch(error => {
+                console.error('Errore:', error);
+                // Gestisci l'errore in modo appropriato
+            });
+        });
+
+        function deleteHomework() {
+            var selectedHomeworkNome = document.getElementById('deleteDropdown').value;
+
+            fetch('/api/deleteHomework/' + encodeURIComponent(selectedHomeworkNome), {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Errore durante l\'eliminazione dell\'homework');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Homework eliminato con successo', data);
+                alert('Homework eliminato con successo!'); // Notifica di successo
+                // Esegui altre azioni in base alla risposta del server, se necessario
+            })
+
+            .catch(error => {
+                console.error('Errore:', error);
+                // Gestisci l'errore in modo appropriato
+            });
+        }
+
+        function populateDropdown() {
+            fetch('/api/viewHomework')
+                .then(response => response.json())
+                .then(data => {
+                    var dropdown = document.getElementById('deleteDropdown');
+
+                    dropdown.innerHTML = '';
+
+                    data.forEach(homework => {
+                        var option = document.createElement('option');
+                        option.value = homework.nome;
+                        option.text = homework.nome;
+                        dropdown.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Errore durante il recupero degli homework:', error);
+                });
+        }
+
+        populateDropdown();
+
+        function generateRandomID() {
+            return Math.random().toString(36).substring(2, 8);
+        }
+    </script>
+</body>
+</html>
+

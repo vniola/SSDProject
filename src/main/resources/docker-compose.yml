@@ -1,0 +1,9 @@
+version: "3"
+services:
+  mongo-on-docker:
+    image: mongo:latest
+    container_name: "mongo-on-docker"
+    ports:
+      - 27017:27017
+
+  

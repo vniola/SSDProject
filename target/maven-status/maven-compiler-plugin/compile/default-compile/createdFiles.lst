@@ -1,0 +1,15 @@
+com/example/progettoSSD/entity/CompletedHomeworks.class
+com/example/progettoSSD/exception/ResourceNotFoundException.class
+com/example/progettoSSD/repository/CompletedHomeworksRepository.class
+com/example/progettoSSD/exception/GlobalExceptionHandler.class
+com/example/progettoSSD/ProgettoSsdApplication.class
+com/example/progettoSSD/exception/ItemExistsException.class
+com/example/progettoSSD/controller/IndexController.class
+com/example/progettoSSD/service/HomeworkService.class
+com/example/progettoSSD/entity/ErrorObject.class
+com/example/progettoSSD/config/SecurityConfig.class
+com/example/progettoSSD/service/impl/HomeworkServiceImpl.class
+com/example/progettoSSD/repository/HomeworkRepository.class
+com/example/progettoSSD/config/MongoVaultConfig.class
+com/example/progettoSSD/controller/AdminController.class
+com/example/progettoSSD/entity/Homework.class
